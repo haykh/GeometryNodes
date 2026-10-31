@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build archives
+        run: |
+          mkdir -p dist
+          for version_file in */version; do
+            dir="$(dirname "$version_file")"
+            name="$(basename "$dir")"
+            version="$(tr -d '[:space:]' < "$version_file")"
+            archive="dist/${name}-${version}.zip"
+            echo "Packaging ${archive}"
+            zip -j "$archive" "${dir}/${name}.blend" "${dir}/blender_assets.cats.txt" LICENSE
+          done
+          ls -l dist
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.zip --clobber
+          else
+            gh release create "$TAG" dist/*.zip --title "$TAG" --generate-notes
+          fi
