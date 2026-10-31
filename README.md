@@ -12,4 +12,5 @@ After installing, the node group should appear in the `Shift+A` menu in Geometry
 
 ### RopeGN
 
-![](./RopeGN/demo.png)
+| ![](./RopeGN/demos/node.png) | ![](./RopeGN/demo.png) |
+| --- | --- |
